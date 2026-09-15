@@ -1,5 +1,6 @@
 
 import os
+import tempfile
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,7 +11,10 @@ OPENROUTER_BASE_URL = os.environ.get("OPENROUTER_BASE_URL")
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 MODEL_ID = os.environ.get("MODEL_ID")
 
-LLM_CACHE_PATH = os.environ.get("LLM_CACHE_PATH", "./llm_cache.sqlite")
+
+# Rediriger vers /tmp/ si on est sur Streamlit Cloud ou en lecture seule, sinon garder le chemin local
+default_cache = os.path.join(tempfile.gettempdir(), "llm_cache.sqlite")
+LLM_CACHE_PATH = os.environ.get("LLM_CACHE_PATH", default_cache)
 
 # Table réellement construite dans le projet (mart unique regroupant
 # ventes, dépenses marketing et sentiment).
