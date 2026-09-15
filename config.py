@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DUCKDB_PATH = os.environ.get("DUCKDB_PATH")
+DUCKDB_PATH = os.environ.get("DUCKDB_PATH", "my_db.duckdb")
 
 OPENROUTER_BASE_URL = os.environ.get("OPENROUTER_BASE_URL")
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
