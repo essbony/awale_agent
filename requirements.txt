@@ -1,0 +1,10 @@
+streamlit>=1.38
+langchain>=0.3
+langchain-community>=0.3
+langchain-core>=0.3
+langchain-openai>=0.2
+langgraph>=0.2
+duckdb>=1.0
+duckdb-engine>=0.13
+python-dotenv>=1.0
+
