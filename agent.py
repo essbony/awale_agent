@@ -64,6 +64,37 @@ def check_grounding(final_answer: str, tool_outputs: list[str]) -> bool:
 # --------------------------------------------------------------------------
 # Construction de l'agent
 # --------------------------------------------------------------------------
+# À placer avant la création de SQLDatabase, ex. en haut de agent.py
+
+import sqlalchemy
+from duckdb_engine import Dialect as DuckDBDialect
+from duckdb_engine.datatypes import ischema_names  # mapping type DuckDB -> type SQLAlchemy déjà fourni par duckdb-engine
+
+def _patched_get_columns(self, connection, table_name, schema=None, **kwgs):
+    query = sqlalchemy.text("""
+        select column_name, data_type, is_nullable, column_default
+        from information_schema.columns
+        where table_name = :table_name
+          and (:schema is null or table_schema = :schema)
+        order by ordinal_position
+    """)
+    rows = connection.execute(
+        query, {"table_name": table_name, "schema": schema}
+    ).fetchall()
+
+    columns = []
+    for name, data_type, is_nullable, default in rows:
+        base_type = data_type.split("(")[0].upper()  # ex: "VARCHAR(255)" -> "VARCHAR"
+        col_type = ischema_names.get(base_type, sqlalchemy.types.NullType)
+        columns.append({
+            "name": name,
+            "type": col_type() if isinstance(col_type, type) else col_type,
+            "nullable": is_nullable == "YES",
+            "default": default,
+        })
+    return columns
+
+DuckDBDialect.get_columns = _patched_get_columns
 
 def build_agent():
     """Construit et retourne l'agent LangGraph compilé. Pas de mise en
