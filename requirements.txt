@@ -7,5 +7,6 @@ langgraph>=0.2
 duckdb
 duckdb-engine
 python-dotenv>=1.0
+sqlalchemy<=2.0.44
 
 
