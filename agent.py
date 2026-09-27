@@ -64,13 +64,40 @@ def check_grounding(final_answer: str, tool_outputs: list[str]) -> bool:
 # --------------------------------------------------------------------------
 # Construction de l'agent
 # --------------------------------------------------------------------------
-# À placer avant la création de SQLDatabase, ex. en haut de agent.py
 
 import sqlalchemy
+from sqlalchemy import types as sqltypes
 from duckdb_engine import Dialect as DuckDBDialect
-from duckdb_engine.datatypes import ischema_names  # mapping type DuckDB -> type SQLAlchemy déjà fourni par duckdb-engine
 
-def _patched_get_columns(self, connection, table_name, schema=None, **kwgs):
+# Mapping minimal DuckDB -> types SQLAlchemy génériques.
+# Couvre les types courants d'une table de métriques agrégées
+# (VARCHAR, BIGINT, DOUBLE, DATE, BOOLEAN...). Étendre si besoin.
+_DUCKDB_TYPE_MAP = {
+    "BOOLEAN": sqltypes.BOOLEAN,
+    "TINYINT": sqltypes.SMALLINT,
+    "SMALLINT": sqltypes.SMALLINT,
+    "INTEGER": sqltypes.INTEGER,
+    "BIGINT": sqltypes.BIGINT,
+    "HUGEINT": sqltypes.BIGINT,
+    "UTINYINT": sqltypes.SMALLINT,
+    "USMALLINT": sqltypes.INTEGER,
+    "UINTEGER": sqltypes.BIGINT,
+    "UBIGINT": sqltypes.BIGINT,
+    "FLOAT": sqltypes.FLOAT,
+    "DOUBLE": sqltypes.FLOAT,
+    "DECIMAL": sqltypes.NUMERIC,
+    "VARCHAR": sqltypes.VARCHAR,
+    "BLOB": sqltypes.BLOB,
+    "DATE": sqltypes.DATE,
+    "TIME": sqltypes.TIME,
+    "TIMESTAMP": sqltypes.TIMESTAMP,
+    "TIMESTAMP WITH TIME ZONE": sqltypes.TIMESTAMP,
+    "INTERVAL": sqltypes.Interval,
+    "JSON": sqltypes.JSON,
+}
+
+
+def _patched_get_columns(self, connection, table_name, schema=None, **kw):
     query = sqlalchemy.text("""
         select column_name, data_type, is_nullable, column_default
         from information_schema.columns
@@ -84,15 +111,16 @@ def _patched_get_columns(self, connection, table_name, schema=None, **kwgs):
 
     columns = []
     for name, data_type, is_nullable, default in rows:
-        base_type = data_type.split("(")[0].upper()  # ex: "VARCHAR(255)" -> "VARCHAR"
-        col_type = ischema_names.get(base_type, sqlalchemy.types.NullType)
+        base_type = data_type.split("(")[0].strip().upper()
+        col_type_cls = _DUCKDB_TYPE_MAP.get(base_type, sqltypes.NullType)
         columns.append({
             "name": name,
-            "type": col_type() if isinstance(col_type, type) else col_type,
+            "type": col_type_cls(),
             "nullable": is_nullable == "YES",
             "default": default,
         })
     return columns
+
 
 DuckDBDialect.get_columns = _patched_get_columns
 
