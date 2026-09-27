@@ -4,8 +4,8 @@ langchain-community>=0.3
 langchain-core>=0.3
 langchain-openai>=0.2
 langgraph>=0.2
-duckdb>=1.0
-duckdb-engine>=0.13
+duckdb>=1.5.5
+duckdb-engine>=0.17.0
 python-dotenv>=1.0
 
 
