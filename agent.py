@@ -77,7 +77,6 @@ def build_agent():
         f"duckdb:///{config.DUCKDB_PATH}",
         include_tables=config.ALLOWED_TABLES,
         engine_args={"connect_args": {"read_only": True}},
-        lazy_table_reflection=True,
     )
     llm = ChatOpenAI(
         model=config.MODEL_ID,
