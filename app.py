@@ -1,8 +1,6 @@
-import os
-# os.environ["USER_AGENT"]="AGENT-app/0.1.0"
+
 import asyncio
 import uuid
-
 import streamlit as st
 
 import config
