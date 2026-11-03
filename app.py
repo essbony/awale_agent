@@ -27,6 +27,36 @@ st.title("🤖 Agent d'analyse — données Awalé Boissons")
 st.caption(f"Session : `{st.session_state.session_id}`")
 
 
+def _run_async(coro):
+    """Exécute une coroutine en gérant le cas 'Event loop is closed' de Streamlit.
+
+    `asyncio.run()` crée/ferme une boucle à chaque appel. Au 2e message,
+    `asyncio.get_event_loop()` peut retourner la boucle fermée par l'appel
+    précédent, d'où `RuntimeError: Event loop is closed`.
+    On détecte ce cas et on recrée une boucle neuve. Si une boucle tourne
+    déjà, on exécute dans un thread séparé.
+    """
+    try:
+        running = asyncio.get_running_loop()
+        if running and not running.is_closed():
+            import concurrent.futures
+
+            with concurrent.futures.ThreadPoolExecutor() as pool:
+                future = pool.submit(asyncio.run, coro)
+                return future.result()
+    except RuntimeError:
+        pass
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_closed():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop.run_until_complete(coro)
+
+
 @st.cache_resource
 def get_cached_agent():
     return build_agent()
@@ -91,7 +121,7 @@ if question := st.chat_input("Pose une question sur les données Awalé..."):
             return accumulated, tool_outputs
 
         try:
-            final_answer, tool_outputs = asyncio.run(consume_stream())
+            final_answer, tool_outputs = _run_async(consume_stream())
             thinking_placeholder.empty()
 
             if not check_grounding(final_answer, tool_outputs):
