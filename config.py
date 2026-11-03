@@ -5,14 +5,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DUCKDB_PATH = os.environ.get("DUCKDB_PATH", "my_db.duckdb")
+DUCKDB_PATH = os.environ.get("DUCKDB_PATH")
 
 OPENROUTER_BASE_URL = os.environ.get("OPENROUTER_BASE_URL")
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 MODEL_ID = os.environ.get("MODEL_ID")
 
 
-# Rediriger vers /tmp/ si on est sur Streamlit Cloud ou en lecture seule, sinon garder le chemin local
+# Rediriger vers /tmp/ si on est sur Streamlit Cloud ou en lecture seule
+
 default_cache = os.path.join(tempfile.gettempdir(), "llm_cache.sqlite")
 LLM_CACHE_PATH = os.environ.get("LLM_CACHE_PATH", default_cache)
 

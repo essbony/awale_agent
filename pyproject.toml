@@ -1,0 +1,80 @@
+[project]
+name = "awale-agent"
+version = "0.1.0"
+description = "Agent Awalé — assistant d'analyse pour fct_business_performance (DuckDB + LangGraph)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "streamlit>=1.38",
+    "langchain>=0.3",
+    "langchain-community>=0.3",
+    "langchain-core>=0.3",
+    "langchain-openai>=0.2",
+    "langgraph>=0.2",
+    "duckdb==1.5.5",
+    "duckdb-engine>=0.17.0",
+    "python-dotenv>=1.0",
+    "sqlalchemy<=2.0.44",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.4",
+    "ruff",
+    "mypy",
+    "pytest-cov",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = ["E402", "E501", "F401"]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 100
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+allow_untyped_defs = true
+allow_untyped_calls = true
+check_untyped_defs = false
+warn_return_any = false
+warn_unused_configs = false
+warn_redundant_casts = false
+warn_unused_ignores = false
+show_error_codes = true
+disable_error_code = ["attr-defined", "method-assign", "import-not-found", "import-untyped", "annotation-unchecked"]
+explicit_package_bases = true
+mypy_path = "."
+exclude = '''(?x)
+    ^\.venv/
+  | ^__pycache__/
+  | ^\.mypy_cache/
+  | ^\.pytest_cache/
+'''
+
+[tool.hatch.build]
+artifacts = []
+
+[tool.hatch.build.targets.wheel]
+packages = []
+only-include = ["agent.py", "app.py", "config.py", "prompts.py"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

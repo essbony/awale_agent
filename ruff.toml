@@ -1,0 +1,17 @@
+# Ruff config — adapté au code existant (ne change rien aux sources)
+target-version = "py311"
+line-length = 100
+
+[format]
+quote-style = "double"
+indent-style = "space"
+
+[lint]
+# Ne bloque que sur erreurs critiques ; les imports mid-file (E402)
+# et imports apparemment inutilisés en tests (F401 sur pytest) sont
+# tolérés car le code existant ne doit pas être modifié.
+select = ["E", "F"]
+ignore = ["E402", "E501", "F401"]
+
+[lint.pycodestyle]
+max-line-length = 100

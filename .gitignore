@@ -1,4 +1,6 @@
 **/.env
 .env
 .env
-.duckdb
+__pycache__
+/*.pyc
+/*.sql
