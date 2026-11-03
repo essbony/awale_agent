@@ -19,13 +19,15 @@ build/
 .venv/
 venv/
 env/
+uv.lock
+.uv/
 
 # Secrets & env
 .env
 .env.*
 !.env.example
 
-# Databases & caches (volumineux / sensibles / régénérables)
+# Databases & caches (volumineux / régénérables)
 *.duckdb
 *.db
 *.sqlite
@@ -41,10 +43,6 @@ Thumbs.db
 *.swp
 *.swo
 *~
-
-# Docker
-Dockerfile
-.dockerignore
 
 # Logs & tmp
 *.log
